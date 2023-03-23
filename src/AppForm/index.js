@@ -1,7 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function AppForm() {
+  const [descricao, setDescricao] = useState('');
+  const [quantidade, setQuantidade] = useState('');
+
+  function descricaoChanged(descricao) {
+    setDescricao(descricao);
+  }
+
+  function quantidadeChanged(quantidade) {
+    setQuantidade(quantidade);
+  }
+
+  async function botaoPressed() {
+    const item = {id: new Date().getTime(), descricao, quantidade: parseInt(quantidade)} ;
+    let items = [];
+    const response = await AsyncStorage.getItem('items');
+
+    if (response) items = JSON.parse(response);
+
+    items.push(item);
+
+    console.log(items);    
+
+    await AsyncStorage.setItem('items', JSON.stringify(items));
+    
+
+  }
+
   return (
     <View style={styles.container}>
         <Text style={styles.title}>Cadastro de Item para compra</Text>
@@ -10,14 +39,17 @@ export default function AppForm() {
                 style={ styles.input}
                 placeholder="O que deseja comprar?"
                 clearButtomMode="always"
+                onChangeText={descricaoChanged}
             />
             <TextInput
                 style={ styles.input}
                 placeholder="Quanto deseja comprar?"
                 clearButtomMode="always"
+                onChangeText={quantidadeChanged}
             />
             <TouchableOpacity
                 style={ styles.button}
+                onPress={botaoPressed}
             >
                 <Text style={styles.buttonText}>Salvar</Text>
             </TouchableOpacity>
